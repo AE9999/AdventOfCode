@@ -21,30 +21,41 @@ def processShift(shift):
     return hours
 pass
 
+# def handleCounts(it):
+#     map(lambdax x: x[2]  it[2])
+# pass
+
+def calculateWeight(item):
+    return sum(map(lambda x: x[1].sum(), item[1]))
+pass
+
+def comp(l, r):
+    return calculateWeight(l[1]) - calculateWeight(r[1])
+pass
+
 inputs = list(sorted(map(lambda x: (parse(x[1:1 + len('1518-08-20 00:16')]), x.rstrip()),
                 open('input.dat').readlines()),
                 key = lambda x: x[0]))
-shifts, rawLines = [], (-1, [], 0)
+shifts, rawLines = [], (-1, [])
 
 for input in inputs:
     if 'begins shift' in input[1]:
-        if rawLines[0] >= 0: shifts.append((rawLines[0], hours,  hours.sum()))
+        if rawLines[0] >= 0: shifts.append((rawLines[0], hours))
         hours = processShift(rawLines[1])
         rawLines = (int(input[1].split(' ')[3][1:]), [])
     else:
         rawLines[1].append(input[1])
 pass
+for shift in shifts:
+    print (shift)
 
-# for shift in shifts:
-#     print(shift)
-#     print("")
-# pass
+byGuards = list(groupby(shifts, lambda  x: x[0]))
+s = sorted(byGuards, key=calculateWeight)
 
-for a in groupby(shifts, lambda  x: x[0]):
-   print(str(a[0]) + " " + str(len(list(a[1]))))
-#     print (list(a[1]))
-#     #sum(a[1], lambda x: x[2])
-# pass
+#for byGuard in s:
+#    print(s)
+
+
 
 
 
