@@ -9,11 +9,7 @@ minX, minY = sorted(inputs, key=lambda x: x[0], reverse=False)[0][0], \
 maxX, maxY = sorted(inputs, key=lambda x: x[0], reverse=True)[0][0], \
              sorted(inputs, key=lambda x: x[1], reverse=True)[0][1]
 
-
-#print (minX, minY, maxX, maxY)
-
-
-rows = [] # * ((maxX+1) * (maxY+1) + 1) # labels round
+rows = [] # labels round
 for row in range(maxY+1):
     newRow = []
     for column in range(maxX+1): newRow.append(([], (maxY * maxX) + 1))
@@ -28,17 +24,13 @@ for i in range(len(inputs)): queue.appendleft((i, 0, inputs[i])) # label, round,
 while len(queue) > 0:
     activepoint = queue.pop()
     field = rows[activepoint[2][1]][activepoint[2][0]]
-    #print ("Considering (%d,%d) for %d at stept %d" % (activepoint[2][0], activepoint[2][1], activepoint[0], activepoint[1]))
-    if field[1] < activepoint[1] or (activepoint[0] in field[0]):
-        #print "\t Was already colered sooner .. "
-        continue  # already colored
-    #print ("\t Coloring it %d .. " % activepoint[0])
+    if field[1] < activepoint[1] or (activepoint[0] in field[0]): continue  # already colored
     field[0].append(activepoint[0])
     rows[activepoint[2][1]][activepoint[2][0]] = (field[0], activepoint[1])
     for delta in deltas:
         np = (activepoint[2][0] + delta[0], activepoint[2][1] + delta[1])
         if np[0] > maxX or np[0] < minX or np[1] > maxY or np[1] < minY:
-            #infs.append(activepoint[0])
+            if field[0][0] not in infs: infs.append(field[0][0]) # infinate color
             continue
         queue.appendleft((activepoint[0], activepoint[1]+1, np))
     pass
@@ -62,7 +54,7 @@ for y in range(maxY+1):
 pass
 
 r = list((k, list(v)) for k, v in groupby(sorted(map(lambda x: x[0],
-                                                     filter(lambda x: len(x) == 1,
+                                                     filter(lambda x: len(x) == 1 and x[0] not in infs,
                                                             map(lambda x: x[0],
                                                                 list(itertools.chain(*rows))))))))
 
