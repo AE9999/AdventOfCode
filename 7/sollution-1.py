@@ -17,7 +17,7 @@ antecedent2tasks = dict((k, list(map(lambda x: x[1], v))) for k, v in gb)
 # list(string.ascii_uppercase).index('Z')
 
 h,r = [], []
-for x in sorted(set(list('ABCDEF')) - set(task2antecedents.keys())): heapq.heappush(h, x)
+for x in sorted(set(list(string.ascii_uppercase)) - set(task2antecedents.keys())): heapq.heappush(h, x)
 
 while len(h) > 0:
     antecedent = heapq.heappop(h)
