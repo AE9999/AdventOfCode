@@ -2,16 +2,15 @@ import sys
 
 def list2int(list): return int("".join(str(i) for i in list), 2)
 
-def printState(state, generation = 0):
+def calculateSum(state, generation):
+    base = - ((generation) * 4)
+    return sum([state[x] * (x + base) for x in range(len(state))])
+pass
+
+def getActiveState(state):
     low = state.index(1)
     high = len(state) - 1 - state[::-1].index(1)
-
-    base = - ((generation) * 4)
-
-    print("(%d, %d) => %s (%s)" % (low,
-                                   high,
-                                   "".join(["." if x == 0 else '#' for x in state[low:high+1]]),
-                                   sum([state[x] * (x + base) for x in range(len(state))])))
+    return state[low:high+1]
 pass
 
 state =  list(map(lambda x: 0 if x == '.' else 1,
@@ -30,9 +29,20 @@ def nextState(state):
     return state[0:2] + [transfers[list2int(state[(x-2):(x+3)])] for x in range(2, len(state) - 2)] + state[-2:]
 pass
 
-passes = 20
-printState(state)
+passes = 20000
 for generation in range(passes):
+    pstate = state
+    pactiveState = getActiveState(state)
     state = nextState([0,0,0,0] + state + [0,0,0,0])
-    printState(state, generation+1)
+    if generation + 1 == 20:
+        print ("Current score at generation 20 => %d .." % calculateSum(state, generation + 1))  # Solution 1
+    if pactiveState == getActiveState(state):
+        ngen = 50000000000 - (generation + 1)
+        currentScore = calculateSum(state, generation + 1)
+        increment = (calculateSum(state, generation + 1) - calculateSum(pstate, generation))
+        print ("Equilibrium reached at Generation: %d, current score %d, increment %d .. "
+               % ((generation + 1), currentScore, increment))
+        print ("Expected score at 50000000000 => %s  .." % ((ngen * increment) + currentScore))  # Solution 2
+        break
+    pass
 pass
