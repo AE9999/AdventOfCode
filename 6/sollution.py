@@ -36,31 +36,9 @@ while len(queue) > 0:
     pass
 pass
 
-for y in range(maxY+1):
-    row = []
-    for x in range(maxX+1):
-        field = rows[y][x]
-        if (len(field[0]) == 0):
-            row.append('x')
-        elif (len(field[0]) > 1):
-            row.append('.')
-        else:
-            c = chr(ord('a') + field[0][0])
-            if field[1] == 0: c = c.upper()
-            row.append(c)
-        pass
-    pass
-    print row
-pass
-
 r = list((k, list(v)) for k, v in groupby(sorted(map(lambda x: x[0],
                                                      filter(lambda x: len(x) == 1 and x[0] not in infs,
                                                             map(lambda x: x[0],
                                                                 list(itertools.chain(*rows))))))))
 
 print("Done => %d .." % sorted(map(lambda x: len(x[1]), r), reverse=True)[0])
-
-
-
-
-
