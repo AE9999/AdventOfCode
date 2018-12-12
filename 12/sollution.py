@@ -8,7 +8,7 @@ def printState(state, generation = 0):
 
     base = - ((generation) * 4)
 
-    print("(%d, %d) => %s (%d)" % (low,
+    print("(%d, %d) => %s (%s)" % (low,
                                    high,
                                    "".join(["." if x == 0 else '#' for x in state[low:high+1]]),
                                    sum([state[x] * (x + base) for x in range(len(state))])))
@@ -34,5 +34,5 @@ passes = 20
 printState(state)
 for generation in range(passes):
     state = nextState([0,0,0,0] + state + [0,0,0,0])
-    printState(state, generation)
+    printState(state, generation+1)
 pass
