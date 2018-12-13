@@ -4,15 +4,10 @@ rows, carts = list(map(lambda x: list(x.rstrip()),  sys.stdin.readlines())), []
 
 def replaceCart(x, y):
     global rows
-    up = None if y < 1 else rows[y-1][x]
-    down = None if (y + 1) == len(rows) else rows[y+1][x]
-    left = None if (x < 1) else rows[y][x-1]
-    right = None if (x+1) == len(rows[y]) else rows[y][x+1]
-
-    canGoUp = up is not None and up in "|/\\+"
-    canGoDown = down is not None and down in "|+\\/"
-    canGoLeft = left is not None and left in "+-\\/"
-    canGoRight = right is not None and right in "+-\\/"
+    canGoUp = y >= 1 and rows[y-1][x] in "|/\\+"
+    canGoDown = (y + 1) < len(rows) and rows[y+1][x]  in "|+\\/"
+    canGoLeft =  x >= 1 and rows[y][x-1] in "+-\\/"
+    canGoRight = (x+1) < len(rows[y]) and rows[y][x+1] in "+-\\/"
 
     if canGoUp and canGoDown and canGoLeft and canGoRight:
         return '+'
