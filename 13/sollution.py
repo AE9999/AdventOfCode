@@ -1,7 +1,7 @@
 import sys
 
-#input = sys.stdin
-input =  open('input-test.dat')
+input = sys.stdin
+#input =  open('input.dat')
 rows = list(map(lambda x: list(x.rstrip()),  input.readlines()))
 carts = []
 
@@ -44,14 +44,14 @@ def handleDirection(direction, turn):
     if direction == '<':
         if t == 0: return 'v', (0, 1)
         if t == 1: return '<', (-1, 0)
-        if t == 2: return '^', (0, 1)
+        if t == 2: return '^', (0, -1)
     if direction == 'v':
         if t == 0: return '>', (1, 0)
         if t == 1: return 'v', (0, 1)
         if t == 2: return '<', (-1, 0)
     if direction == '^':
         if t == 0: return '<', (-1, 0)
-        if t == 1: return '^', (-1, 0)
+        if t == 1: return '^', (0, -1)
         if t == 2: return '>', (1, 0)
 pass
 
@@ -113,16 +113,16 @@ while True:
         if nCart[1][0] >= len(rows[nCart[1][1]]): raise Exception('invalid assumption')
         if rows[nCart[1][1]][nCart[1][0]] is None or rows[nCart[1][1]][nCart[1][0]] not in "><^v+\\/|-":
             raise Exception('invalid assumption')
+        nextState(nCart)
         collisions = list(filter(lambda x: x[1] == nCart[1], carts[i+1:])) + \
                      list(filter(lambda x: x[1] == nCart[1], nextCarts))
         if len(collisions) > 0:
-            print("Collision at turn %d, between %s and %s" % (turn, nCart, collisions[0]))
+            print("Collision at turn %d, between %s and %s" % (turn, nCart, collisions[0])) # sollution 1
             break
         pass
         nextCarts.append(nCart)
     pass
+    if len(carts) != len(nextCarts): break
     carts = nextCarts
     turn += 1
 pass
-
-print ("Done!")
