@@ -1,20 +1,19 @@
 import sys
 
-def list2int(list): return int("".join(str(i) for i in list), 2)
+def list2int(list):
+    return int("".join(str(i) for i in list), 2)
+pass
 
 def calculateSum(state, generation):
-    base = - ((generation) * 4)
-    return sum([state[x] * (x + base) for x in range(len(state))])
+    return sum([state[x] * (x - ((generation) * 4)) for x in range(len(state))])
 pass
 
 def getActiveState(state):
-    low = state.index(1)
-    high = len(state) - 1 - state[::-1].index(1)
-    return state[low:high+1]
+    return state[(state.index(1)):(len(state) - state[::-1].index(1))]
 pass
 
-state =  list(map(lambda x: 0 if x == '.' else 1,
-                  list(sys.stdin.readline().rstrip().split(' ')[2])))
+state = list(map(lambda x: 0 if x == '.' else 1,
+                 list(sys.stdin.readline().rstrip().split(' ')[2])))
 
 transfers = dict(map(lambda x: (list2int(map(lambda x: 0 if x == '.' else 1, list(x[0]))), 0 if x[2] == '.' else 1),
                      map(lambda x: x.rstrip().split(' '),
@@ -29,10 +28,8 @@ def nextState(state):
     return state[0:2] + [transfers[list2int(state[(x-2):(x+3)])] for x in range(2, len(state) - 2)] + state[-2:]
 pass
 
-passes = 20000
-for generation in range(passes):
-    pstate = state
-    pactiveState = getActiveState(state)
+for generation in range(20000):
+    pstate, pactiveState = state, getActiveState(state)
     state = nextState([0,0,0,0] + state + [0,0,0,0])
     if generation + 1 == 20:
         print ("Current score at generation 20 => %d .." % calculateSum(state, generation + 1))  # Solution 1

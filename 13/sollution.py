@@ -2,7 +2,6 @@ import sys
 
 input = open('input-test.dat')  # sys.stdin
 rows = list(map(lambda x: list(x.rstrip()),  input.readlines()))
-
 carts = []
 
 def replaceCart(x, y):
@@ -14,7 +13,7 @@ def replaceCart(x, y):
     if not set(['^', '>', 'v', '>']).isdisjoint(set([up, down, left, right])): raise Exception('invalid assumption')
 
     canGoUp = up is not None and up in "|/\\+"
-    canGoDown = down is not None and down in "+\\/"
+    canGoDown = down is not None and down in "|+\\/"
     canGoLeft = left is not None and left in "+-\\/"
     canGoRight = right is not None and right in "+-\\/"
     if canGoUp + canGoDown + canGoLeft + canGoRight == 1 \
@@ -99,10 +98,10 @@ for y in range(len(rows)):
     pass
 pass
 
-# turn = 0
-# while True:
-#     carts = [nextState(cart) for cart in carts]
-#     turn += 1
-# pass
+turn = 0
+for x in range(1):
+    carts = [nextState(cart) for cart in carts]
+    turn += 1
+pass
 
 print ("Done!")
