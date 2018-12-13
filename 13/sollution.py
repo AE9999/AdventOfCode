@@ -27,53 +27,49 @@ def replaceCart(x, y):
     pass
 pass
 
-def handleDirection(direction, turn):
-    if direction == '>':
-        if turn % 3 == 0: return '^', (0, -1)  # Delta return stuff is actually superflous
-        if turn % 3 == 1: return '>', (1, 0)
-        if turn % 3 == 2: return 'v', (0, 1)
-    elif direction == '<':
-        if turn % 3 == 0: return 'v', (0, 1)
-        if turn % 3 == 1: return '<', (-1, 0)
-        if turn % 3 == 2: return '^', (0, -1)
-    elif direction == 'v':
-        if turn % 3 == 0: return '>', (1, 0)
-        if turn % 3 == 1: return 'v', (0, 1)
-        if turn % 3 == 2: return '<', (-1, 0)
-    elif direction == '^':
-        if turn % 3 == 0: return '<', (-1, 0)
-        if turn % 3 == 1: return '^', (0, -1)
-        if turn % 3 == 2: return '>', (1, 0)
-    pass
-pass
-
 def nextState(cart):
     global rows
-    direction, x, y, turns, cc = cart[0], cart[1][0], cart[1][1], cart[2], rows[cart[1][1]][cart[1][0]]
-    if cc == '-':
-        if direction == '<': return (direction, (x-1, y), turns)
-        if direction == '>': return (direction, (x+1, y), turns)
-        pass
-    elif cc == '|':
-        if direction == '^': return (direction, (x, y - 1), turns)
-        if direction == 'v': return (direction, (x, y + 1), turns)
-        pass
+    direction, x, y, turn, cc = cart[0], cart[1][0], cart[1][1], cart[2], rows[cart[1][1]][cart[1][0]]
+    ndirection, delta = '', (0,0)
+    if cc == '-' or cc == '|':
+        ndirection = direction
     elif cc == '/':
-        if direction == '<': return ('v', (x, y + 1), turns)
-        if direction == '>': return ('^', (x, y - 1), turns)
-        if direction == '^': return ('>', (x+1, y), turns)
-        if direction == 'v': return ('<', (x-1, y), turns)
+        if direction == '<': ndirection = 'v'
+        if direction == '>': ndirection = '^'
+        if direction == '^': ndirection = '>'
+        if direction == 'v': ndirection = '<'
         pass
     elif cc == '\\':
-        if direction == '>': return ('v', (x, y+1), turns)
-        if direction == '<': return ('^', (x, y-1), turns)
-        if direction == '^': return ('<', (x-1, y), turns)
-        if direction == 'v': return ('>', (x+1, y), turns)
+        if direction == '>': ndirection = 'v'
+        if direction == '<': ndirection = '^'
+        if direction == '^': ndirection = '<'
+        if direction == 'v': ndirection = '>'
         pass
     elif cc == '+':
-        ndirection, delta = handleDirection(direction, turns)
-        return (ndirection,(x + delta[0], y + delta[1]) ,turns +1)
+        if direction == '>':
+            if turn % 3 == 0: ndirection = '^'
+            if turn % 3 == 1: ndirection = '>'
+            if turn % 3 == 2: ndirection = 'v'
+        elif direction == '<':
+            if turn % 3 == 0: ndirection = 'v'
+            if turn % 3 == 1: ndirection = '<'
+            if turn % 3 == 2: ndirection = '^'
+        elif direction == 'v':
+            if turn % 3 == 0: ndirection = '>'
+            if turn % 3 == 1: ndirection = 'v'
+            if turn % 3 == 2: ndirection = '<'
+        elif direction == '^':
+            if turn % 3 == 0: ndirection = '<'
+            if turn % 3 == 1: ndirection = '^'
+            if turn % 3 == 2: ndirection = '>'
+        pass
     pass
+    if ndirection == '>': delta = (1, 0)
+    if ndirection == '<': delta = (-1, 0)
+    if ndirection == 'v': delta = (0, 1)
+    if ndirection == '^': delta = (0, -1)
+
+    return (ndirection,(x + delta[0], y + delta[1]), turn +1 if cc == '+' else turn)
 pass
 
 for y in range(len(rows)):
