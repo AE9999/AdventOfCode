@@ -61,36 +61,31 @@ def nextState(cart):
     direction, x, y, turns = cart[0], cart[1][0], cart[1][1], cart[2]
     cc = rows[cart[1][1]][cart[1][0]]
     if cc == '-':
-        if direction == '<':
-            return (direction, (x-1, y), turns)
-        if direction == '>':
-            return (direction, (x+1, y), turns)
+        if direction == '<': return (direction, (x-1, y), turns)
+        if direction == '>': return (direction, (x+1, y), turns)
+        raise Exception('invalid assumption')
+        pass
+    elif cc == '|':
+        if direction == '^': return (direction, (x, y - 1), turns)
+        if direction == 'v': return (direction, (x, y + 1), turns)
         raise Exception('invalid assumption')
         pass
     elif cc == '/':
-        if direction == '<':
-            return ('v', (x, y - 1), turns)
-        if direction == '^':
-            return ('>', (x+1, y), turns)
+        if direction == '<': return ('v', (x, y + 1), turns)
+        if direction == '>': return ('^', (x, y - 1), turns)
+        if direction == '^': return ('>', (x+1, y), turns)
+        if direction == 'v': return ('<', (x-1, y), turns)
         raise Exception('invalid assumption')
+        pass
+    elif cc == '\\':
+        if direction == '>': return ('v', (x, y+1), turns) # CORRECT
+        if direction == '<': return ('^', (x, y-1), turns)
+        if direction == '^': return ('<', (x-1, y), turns)
+        if direction == 'v': return ('>', (x+1, y), turns)
         pass
     elif cc == '+':
         ndirection, delta = handleDirection(direction, turns)
         return (ndirection,(x + delta[0], y + delta[1]) ,turns +1)
-    elif cc == '\\':
-        if direction == '>':
-            return ('v', (x, y - 1), turns)
-        if direction == '^':
-            return ('<', (x+1, y), turns)
-        raise Exception('invalid assumption')
-        pass
-    elif cc == '|':
-        if direction == '^':
-            return (direction, (x, y - 1), turns)
-        if direction == 'v':
-            return (direction, (x, y + 1), turns)
-        raise Exception('invalid assumption')
-        pass
     else:
         raise Exception('invalid assumption')
     pass
@@ -114,6 +109,10 @@ while True:
         print ("\tStep %d .." % (i))
         nCart = nextState(carts[i])
         if nCart[1][0] < 0 or nCart[1][1] < 0: raise Exception('invalid assumption')
+        if nCart[1][1] >= len(rows): raise Exception('invalid assumption')
+        if nCart[1][0] >= len(rows[nCart[1][1]]): raise Exception('invalid assumption')
+        if rows[nCart[1][1]][nCart[1][0]] is None or rows[nCart[1][1]][nCart[1][0]] not in "><^v+\\/|-":
+            raise Exception('invalid assumption')
         collisions = list(filter(lambda x: x[1] == nCart[1], carts[i+1:])) + \
                      list(filter(lambda x: x[1] == nCart[1], nextCarts))
         if len(collisions) > 0:
