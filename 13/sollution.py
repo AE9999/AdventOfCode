@@ -29,8 +29,8 @@ def nextState(cart):
     if cc == '-' or cc == '|':
         ndirection = direction
     elif cc == '/':
-        if direction == '<': ndirection = 'v'
         if direction == '>': ndirection = '^'
+        if direction == '<': ndirection = 'v'
         if direction == '^': ndirection = '>'
         if direction == 'v': ndirection = '<'
         pass
