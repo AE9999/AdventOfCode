@@ -1,6 +1,7 @@
 import sys
 
-input = open('input-test.dat')  # sys.stdin
+#input = sys.stdin
+input =  open('input-test.dat')
 rows = list(map(lambda x: list(x.rstrip()),  input.readlines()))
 carts = []
 
@@ -64,43 +65,64 @@ def nextState(cart):
             return (direction, (x-1, y), turns)
         if direction == '>':
             return (direction, (x+1, y), turns)
+        raise Exception('invalid assumption')
         pass
-    if cc == '/':
+    elif cc == '/':
         if direction == '<':
             return ('v', (x, y - 1), turns)
         if direction == '^':
             return ('>', (x+1, y), turns)
+        raise Exception('invalid assumption')
         pass
-    if cc == '+':
+    elif cc == '+':
         ndirection, delta = handleDirection(direction, turns)
         return (ndirection,(x + delta[0], y + delta[1]) ,turns +1)
-    if cc == '\\':
+    elif cc == '\\':
         if direction == '>':
             return ('v', (x, y - 1), turns)
         if direction == '^':
             return ('<', (x+1, y), turns)
+        raise Exception('invalid assumption')
         pass
-    if cc == '|':
+    elif cc == '|':
         if direction == '^':
             return (direction, (x, y - 1), turns)
         if direction == 'v':
             return (direction, (x, y + 1), turns)
+        raise Exception('invalid assumption')
         pass
+    else:
+        raise Exception('invalid assumption')
     pass
 pass
 
 for y in range(len(rows)):
     for x in range(len(rows[y])):
         if rows[y][x] in "^<>v":
-            carts.append((rows[y][x], (x,y), 0)) # direction, position turnstaken
+            carts.append((rows[y][x], (x,y), 0)) # direction, position, turnstaken
             rows[y][x] = replaceCart(x, y)
         pass
     pass
 pass
 
-turn = 0
-for x in range(1):
-    carts = [nextState(cart) for cart in carts]
+turn = 1
+while True:
+    print ("Simulating turn %d .. " % turn)
+    nextCarts = []
+    carts = list(sorted(carts, key=lambda x: x[1]))
+    for i in range(len(carts)):
+        print ("\tStep %d .." % (i))
+        nCart = nextState(carts[i])
+        if nCart[1][0] < 0 or nCart[1][1] < 0: raise Exception('invalid assumption')
+        collisions = list(filter(lambda x: x[1] == nCart[1], carts[i+1:])) + \
+                     list(filter(lambda x: x[1] == nCart[1], nextCarts))
+        if len(collisions) > 0:
+            print("Collision at turn %d, between %s and %s" % (turn, nCart, collisions[0]))
+            break
+        pass
+        nextCarts.append(nCart)
+    pass
+    carts = nextCarts
     turn += 1
 pass
 
