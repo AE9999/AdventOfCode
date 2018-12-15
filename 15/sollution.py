@@ -18,6 +18,19 @@ def printState():
     print("*" * len(rows[0]))
 pass
 
+def deepCopyOfRows():
+    global rows
+    newRows = []
+    for row in rows:
+        newRow = []
+        for column in row:
+            newRow.append(column)
+        pass
+        newRows.append(newRow)
+    pass
+    return newRows
+pass
+
 class Unit:
     def __init__(self, type, location, attack, hp):
         self.type = type
@@ -27,8 +40,12 @@ class Unit:
     pass
 
     def move(self, delta):
-        self.location[0] += delta[0]
-        self.location[1] += delta[1]
+        self.location = (self.location[0] + delta[0], self.location[1] + delta[1])
+    pass
+
+    def __str__(self):
+        return "(Unit type:%s location:%s, attack:%d health:%d)" \
+                % (self.type, str(self.location), self.attack, self.hp)
     pass
 pass
 
@@ -59,7 +76,7 @@ class Path:
     pass
 
     def __str__(self):
-        return "(location:%s lenght:%d)" % (str(self.location), self.length)
+        return "(Path location:%s lenght:%d)" % (str(self.location), self.length)
     pass
 pass
 
@@ -72,11 +89,12 @@ def breathFirstSearch(myRows, unit):
     for delta in deltas: queue.appendleft(root.nextStep(delta))
     while len(queue):
         currentPath = queue.pop()
-        print("Considering %s .."  % currentPath)
+        c = myRows[currentPath.location[1]][currentPath.location[0]]
+        print("\tConsidering %s => %s .."  % (currentPath, str(c)))
+
         # Best path already found continue
         if bestPath is not None and bestPath.isBetterThan(currentPath): continue
 
-        c = myRows[currentPath.location[1]][currentPath.location[0]]
         if isinstance(c, Unit) and c.type != unit.type:
             bestPath = currentPath  # path found!
         elif c == '#' \
@@ -84,7 +102,7 @@ def breathFirstSearch(myRows, unit):
             continue  # blocked!
         elif c == '.' or (isinstance(c, Path) and currentPath.isBetterThan(c)):
             myRows[currentPath.location[1]][currentPath.location[0]] = currentPath
-            for delta in deltas: queue.appendleft(root.nextStep(delta))
+            for delta in deltas: queue.appendleft(currentPath.nextStep(delta))
         else:
             continue
         pass
@@ -106,14 +124,17 @@ printState()
 for x in range(10):
     units = sorted(units, key=lambda x: x.location)
     for unit in units:
+        print ("Working with unit %s .." % unit)
         if unit.hp <= 0: continue  # dead
-        delta = breathFirstSearch(rows.copy(), unit)
+        delta = breathFirstSearch(deepCopyOfRows(), unit)
         x,y = unit.location[0] + delta[0], unit.location[1] + delta[1]
         target = rows[y][x]
         if isinstance(target, Unit): #attack target
+            print("Attacking %s .." % str(target))
             target.hp -= unit.attack
             if target.hp < 0: rows[y][x] = '.'
         else: # move unit
+            print("Moving to (%d,%d) .." % (x,y))
             rows[unit.location[1]][unit.location[0]] = '.'
             rows[y][x] = unit
             unit.move(delta)
