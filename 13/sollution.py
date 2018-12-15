@@ -1,82 +1,99 @@
 import sys
 
-rows = list(map(lambda x: list(x.rstrip()),  sys.stdin.readlines()))
-
-carts = []
+rows, carts = list(map(lambda x: list(x.rstrip()),  sys.stdin.readlines())), []
 
 def replaceCart(x, y):
     global rows
+    canGoUp = y >= 1 and rows[y-1][x] in "|/\\+"
+    canGoDown = (y + 1) < len(rows) and rows[y+1][x]  in "|+\\/"
+    canGoLeft =  x >= 1 and rows[y][x-1] in "+-\\/"
+    canGoRight = (x+1) < len(rows[y]) and rows[y][x+1] in "+-\\/"
+
+    if canGoUp and canGoDown and canGoLeft and canGoRight:
+        return '+'
+    elif canGoLeft and canGoRight:
+        return '-'
+    elif canGoUp and canGoDown:
+        return '|'
+    elif (canGoLeft and canGoDown) or (canGoRight and canGoUp):
+        return '\\'
+    elif (canGoRight and canGoDown) or (canGoUp and canGoLeft):
+        return '/'
     pass
 pass
 
-def handleDirection(direction, turn):
-    t = turn % 3
-    if direction == '>':
-        if t == 0: return '^', (0, -1)
-        if t == 1: return '>', (1, 0)
-        if t == 2: return 'v', (0, 1)
-    if direction == '<':
-        if t == 0: return 'v', ()
-        if t == 1: return '<', ()
-        if t == 2: return '^', ()
-    if direction == 'v':
-        if t == 0: return '>', ()
-        if t == 1: return 'v', ()
-        if t == 2: return '<', ()
-    if direction == '^':
-        if t == 0: return '<', ()
-        if t == 1: return '^', ()
-        if t == 2: return '>', ()
-    sys.exit(1)
-pass
-
-
-def nextStateCarte(cart):
+def nextState(cart):
     global rows
-    direction, x, y, turns = cart[0], cart[1][0], cart[1][1], cart[2]
-    cc = rows[cart[1][1]][cart[1][0]]
-    if cc == '-':
-        if direction == '<':
-            return (direction, (x-1, y), turns)
+    direction, x, y, turn, cc = cart[0], cart[1][0], cart[1][1], cart[2], rows[cart[1][1]][cart[1][0]]
+    ndirection, delta = '', (0,0)
+    if cc == '-' or cc == '|':
+        ndirection = direction
+    elif cc == '/':
+        if direction == '>': ndirection = '^'
+        if direction == '<': ndirection = 'v'
+        if direction == '^': ndirection = '>'
+        if direction == 'v': ndirection = '<'
+        pass
+    elif cc == '\\':
+        if direction == '>': ndirection = 'v'
+        if direction == '<': ndirection = '^'
+        if direction == '^': ndirection = '<'
+        if direction == 'v': ndirection = '>'
+        pass
+    elif cc == '+':
         if direction == '>':
-            return (direction, (x+1, y), turns)
-        pass
-    if cc == '/':
-        if direction == '<':
-            return ('v', (x, y - 1), turns)
-        if direction == '^':
-            return ('>', (x+1, y), turns)
-        pass
-    if cc == '+':
-        return (handleDirection() )
-    if cc == '\\':
-        if direction == '>':
-            return ('v', (x, y - 1), turns)
-        if direction == '^':
-            return ('<', (x+1, y), turns)
-        pass
-    if cc == '|':
-        if direction == '^':
-            return (direction, (x, y - 1), turns)
-        if direction == 'v':
-            return (direction, (x, y + 1), turns)
+            if turn % 3 == 0: ndirection = '^'
+            if turn % 3 == 1: ndirection = '>'
+            if turn % 3 == 2: ndirection = 'v'
+        elif direction == '<':
+            if turn % 3 == 0: ndirection = 'v'
+            if turn % 3 == 1: ndirection = '<'
+            if turn % 3 == 2: ndirection = '^'
+        elif direction == 'v':
+            if turn % 3 == 0: ndirection = '>'
+            if turn % 3 == 1: ndirection = 'v'
+            if turn % 3 == 2: ndirection = '<'
+        elif direction == '^':
+            if turn % 3 == 0: ndirection = '<'
+            if turn % 3 == 1: ndirection = '^'
+            if turn % 3 == 2: ndirection = '>'
         pass
     pass
+    if ndirection == '>': delta = (1, 0)
+    if ndirection == '<': delta = (-1, 0)
+    if ndirection == 'v': delta = (0, 1)
+    if ndirection == '^': delta = (0, -1)
+
+    return (ndirection,(x + delta[0], y + delta[1]), turn +1 if cc == '+' else turn)
 pass
 
 for y in range(len(rows)):
     for x in range(len(rows[y])):
         if rows[y][x] in "^<>v":
-            carts.append((rows[y][x], (x,y), 0)) # direction, position turnstaken
+            carts.append((rows[y][x], (x,y), 0))  # direction, position, turnstaken
             rows[y][x] = replaceCart(x, y)
         pass
     pass
 pass
 
-turn = 0
-while True:
-    carts = [ nextState(cart) for cart in carts ]
-    turn += 1
+while len(carts) != 1:
+    nextCarts = []
+    carts = list(sorted(carts, key=lambda x: x[1]))
+    for i in range(len(carts)):
+        if carts[i] is None: continue
+        nCart = nextState(carts[i])
+        oldCollisions = list(filter(lambda x: x[1] == nCart[1], carts[i + 1:]))
+        newCollisions = list(filter(lambda x: x[1] == nCart[1], nextCarts))
+        if len(oldCollisions) > 0:
+            print("Collision between %s and %s" % (nCart, oldCollisions[0]))  # sollution 1
+            carts[carts.index(oldCollisions[0])] = None
+        elif len(newCollisions) > 0:
+            print("Collision between %s and %s" % (nCart, newCollisions[0])) # sollution 1
+            nextCarts.remove(newCollisions[0])
+        else:
+            nextCarts.append(nCart)
+        pass
+    pass
+    carts = nextCarts
 pass
-
-
+print ("Only one cart remains %s .." % str(carts[0]))
