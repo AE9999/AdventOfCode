@@ -57,17 +57,22 @@ class Path:
             return self.firstStepInPath() < otherPath.firstStepInPath()
         return self.length < otherPath.length
     pass
+
+    def __str__(self):
+        return "(location:%s lenght:%d)" % (str(self.location), self.length)
+    pass
 pass
 
 def breathFirstSearch(myRows, unit):
     global deltas
     queue = deque()
     root = Path(unit.location)
+    myRows[unit.location[1]][unit.location[0]] = root
     bestPath = None
     for delta in deltas: queue.appendleft(root.nextStep(delta))
     while len(queue):
         currentPath = queue.pop()
-
+        print("Considering %s .."  % currentPath)
         # Best path already found continue
         if bestPath is not None and bestPath.isBetterThan(currentPath): continue
 
@@ -78,7 +83,7 @@ def breathFirstSearch(myRows, unit):
             or (isinstance(c, Unit) and c.type == unit.type):
             continue  # blocked!
         elif c == '.' or (isinstance(c, Path) and currentPath.isBetterThan(c)):
-            myRows[currentPath.location[1]][currentPath.location[0]] = c
+            myRows[currentPath.location[1]][currentPath.location[0]] = currentPath
             for delta in deltas: queue.appendleft(root.nextStep(delta))
         else:
             continue
