@@ -4,7 +4,8 @@ from collections import deque
 
 myInput = open('input-test.dat')
 
-rows, units, attack, hp, round = list(myInput.readlines().rstrip()), [], 3, 200, 0
+rows = list(map(lambda x: list(x.rstrip()), myInput.readlines()))
+units, attack, hp  = [], 3, 200
 deltas = [(0, -1), (-1, 0), (1, 0), (0, 1)]
 
 def printState():
@@ -12,7 +13,7 @@ def printState():
     print()
     print("*" * len(rows[0]))
     for row in rows:
-        print("".join(list(map(lambda x: x if not isinstance(Unit, x) else x.type, row))))
+        print("".join(list(map(lambda x: x if not isinstance(x, Unit) else x.type, row))))
     pass
     print("*" * len(rows[0]))
 pass
@@ -36,7 +37,7 @@ class Path:
         self.location = location
         self.previousStep = previousStep
         self.delta = delta
-        self.length = 0 if previousStep is None else previousStep.lenght + 1
+        self.length = 0 if previousStep is None else previousStep.length + 1
     pass
 
     def nextStep(self, delta):
@@ -71,12 +72,12 @@ def breathFirstSearch(myRows, unit):
         if bestPath is not None and bestPath.isBetterThan(currentPath): continue
 
         c = myRows[currentPath.location[1]][currentPath.location[0]]
-        if isinstance(Unit, c) and c.type != unit.type:
+        if isinstance(c, Unit) and c.type != unit.type:
             bestPath = currentPath  # path found!
         elif c == '#' \
-            or (isinstance(Unit, c) and c.type == unit.type):
+            or (isinstance(c, Unit) and c.type == unit.type):
             continue  # blocked!
-        elif c == '.' or (isinstance(Path, c) and currentPath.isBetterThan(c)):
+        elif c == '.' or (isinstance(c, Path) and currentPath.isBetterThan(c)):
             myRows[currentPath.location[1]][currentPath.location[0]] = c
             for delta in deltas: queue.appendleft(root.nextStep(delta))
         else:
@@ -97,14 +98,14 @@ for y in range(len(rows)):
 pass
 
 printState()
-for x in range(0):
-    units = filter(sorted(units, key= lambda x: x.location))
+for x in range(10):
+    units = sorted(units, key=lambda x: x.location)
     for unit in units:
         if unit.hp <= 0: continue  # dead
         delta = breathFirstSearch(rows.copy(), unit)
         x,y = unit.location[0] + delta[0], unit.location[1] + delta[1]
         target = rows[y][x]
-        if isinstance(Unit, target): #attack target
+        if isinstance(target, Unit): #attack target
             target.hp -= unit.attack
             if target.hp < 0: rows[y][x] = '.'
         else: # move unit
