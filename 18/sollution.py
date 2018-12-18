@@ -1,7 +1,7 @@
 import sys
 
-#sys.stdin
-myInput = open('input-test.dat')
+#
+myInput = sys.stdin
 acres = list(map(lambda x: list(x.rstrip()), myInput.readlines()))
 
 deltas = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
@@ -23,7 +23,7 @@ def printAcres():
 pass
 
 printAcres()
-for turn in range(1):
+for turn in range(10):
     nextAcres = []
     for y in range(len(acres)):
         nrow = []
@@ -32,7 +32,7 @@ for turn in range(1):
             if acre == '.':
                 nacre = '|' if len(filter(lambda x: x == '|', ajacent(x, y))) >= 3 else '.'
             elif acre == '|':
-                nacre = '#' if len(filter(lambda x: x == '|', ajacent(x, y))) >= 3 else '|'
+                nacre = '#' if len(filter(lambda x: x == '#', ajacent(x, y))) >= 3 else '|'
             elif acre == '#':
                 nacre = '#' if len(filter(lambda x: x == '|', ajacent(x, y))) >= 1 \
                                and len(filter(lambda x: x == '#', ajacent(x, y))) >= 1 else '.'
@@ -44,5 +44,9 @@ for turn in range(1):
     acres = nextAcres
     printAcres()
 pass
+
+woods = len(filter(lambda x: x == '|', [item for sublist in acres for item in sublist]))
+lumberjacks = len(filter(lambda x: x == '#', [item for sublist in acres for item in sublist]))
+print ("%d x %d => %d .. " % (woods, lumberjacks, woods * lumberjacks))
 
 
