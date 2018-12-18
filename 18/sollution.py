@@ -22,31 +22,33 @@ def printAcres():
         print "".join(line)
 pass
 
-printAcres()
-for turn in range(10):
-    nextAcres = []
-    for y in range(len(acres)):
-        nrow = []
-        for x in range(len(acres[0])):
-            acre, nacre = acres[y][x], None
-            if acre == '.':
-                nacre = '|' if len(filter(lambda x: x == '|', ajacent(x, y))) >= 3 else '.'
-            elif acre == '|':
-                nacre = '#' if len(filter(lambda x: x == '#', ajacent(x, y))) >= 3 else '|'
-            elif acre == '#':
-                nacre = '#' if len(filter(lambda x: x == '|', ajacent(x, y))) >= 1 \
-                               and len(filter(lambda x: x == '#', ajacent(x, y))) >= 1 else '.'
+def calculateStuff(minutes):
+    global acres
+    #printAcres()
+    for turn in range(minutes):
+        nextAcres = []
+        for y in range(len(acres)):
+            nrow = []
+            for x in range(len(acres[0])):
+                acre, nacre = acres[y][x], None
+                if acre == '.':
+                    nacre = '|' if len(filter(lambda x: x == '|', ajacent(x, y))) >= 3 else '.'
+                elif acre == '|':
+                    nacre = '#' if len(filter(lambda x: x == '#', ajacent(x, y))) >= 3 else '|'
+                elif acre == '#':
+                    nacre = '#' if len(filter(lambda x: x == '|', ajacent(x, y))) >= 1 \
+                                   and len(filter(lambda x: x == '#', ajacent(x, y))) >= 1 else '.'
+                pass
+                nrow.append(nacre)
             pass
-            nrow.append(nacre)
+            nextAcres.append(nrow)
         pass
-        nextAcres.append(nrow)
+        acres = nextAcres
+        #printAcres()
+        woods = len(filter(lambda x: x == '|', [item for sublist in acres for item in sublist]))
+        lumberjacks = len(filter(lambda x: x == '#', [item for sublist in acres for item in sublist]))
+        print ("%d x %d => %d .. " % (woods, lumberjacks, woods * lumberjacks))
     pass
-    acres = nextAcres
-    printAcres()
 pass
 
-woods = len(filter(lambda x: x == '|', [item for sublist in acres for item in sublist]))
-lumberjacks = len(filter(lambda x: x == '#', [item for sublist in acres for item in sublist]))
-print ("%d x %d => %d .. " % (woods, lumberjacks, woods * lumberjacks))
-
-
+calculateStuff(10000)  # answer1
