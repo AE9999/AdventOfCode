@@ -37,7 +37,7 @@ class SearchNode:
     def spread(self):
         if not self.spreadDown():
             s = self.spreadLeft() + self.spreadRight() == 0
-            self.state = '~' if s else self.state
+            self.state = '~' if s else self.state # fix this
             return not s
         pass
         return True
@@ -90,3 +90,6 @@ def printRows():
 printRows()
 
 SearchNode('+', 500 - normalization[0], 0 - normalization[1], rows).spread()
+
+print("Water reached %d tiles .." % (len(list(filter(lambda x: isinstance(x, SearchNode),
+                                                     [square for row in rows for square in row]))) - 1))
