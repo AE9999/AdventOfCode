@@ -51,13 +51,13 @@ class SearchNode:
     def spreadLeft(self):
         left, surface = self.rows[self.y][self.x -1], self.rows[self.y +1][self.x]
         return left == '.' \
-                   and (surface == '#' or (isinstance(surface, SearchNode) and surface.state == '~')) \
+                   and (isinstance(surface, Clay) or (isinstance(surface, SearchNode) and surface.state == '~')) \
                    and SearchNode('|', self.x - 1, self.y, self.rows).spread()
 
     def spreadRight(self):
         right, surface = self.rows[self.y][self.x+ 1], self.rows[self.y +1][self.x]
         return right == '.' \
-                   and (surface == '#' or (isinstance(surface, SearchNode) and surface.state == '~')) \
+                   and (isinstance(surface, Clay) or (isinstance(surface, SearchNode) and surface.state == '~')) \
                    and SearchNode('|', self.x + 1, self.y, self.rows).spread()
 pass
 
