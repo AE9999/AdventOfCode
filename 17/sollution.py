@@ -24,6 +24,43 @@ class Clay:
     pass
 pass
 
+class SearchNode:
+    def __init__(self, state, x, y, rows):
+        self.state = state
+        self.x = x
+        self.y = y
+        self.rows = rows
+        self.rows[self.y][self.x] = self
+        printRows()
+    pass
+
+    def spread(self):
+        if not self.spreadDown():
+            s = self.spreadLeft() + self.spreadRight() == 0
+            self.state = '~' if not s else self.state
+            return s
+        pass
+        return True
+    pass
+
+    def spreadDown(self):
+        if self.y + 1 >= len(rows): return True
+        return self.rows[self.y+1][self.x] == '.' \
+               and SearchNode('|', self.x, self.y + 1, self.rows).spread()
+
+    def spreadLeft(self):
+        left, surface = self.rows[self.y][self.x -1], self.rows[self.y +1][self.x]
+        return left == '.' \
+                   and (surface == '#' or (isinstance(surface, SearchNode) and surface.state == '~')) \
+                   and SearchNode('|', self.x - 1, self.y, self.rows).spread()
+
+    def spreadRight(self):
+        right, surface = self.rows[self.y][self.x+ 1], self.rows[self.y +1][self.x]
+        return right == '.' \
+                   and (surface == '#' or (isinstance(surface, SearchNode) and surface.state == '~')) \
+                   and SearchNode('|', self.x + 1, self.y, self.rows).spread()
+pass
+
 myInput = open('input-test.dat')
 
 clays = list(map(Clay, myInput.readlines()))
@@ -41,14 +78,15 @@ for square in [square for clay in clays for square in clay.squares()]:
     rows[square[1] - normalization[1]][square[0] - normalization[0]] = square[2]
 
 def printRows():
+    print("")
     global rows
     def printValue(value):
-        if value == ".": return value
+        if value == '.': return '.'
         if isinstance(value, Clay): return '#'
-    pass
-    for row in rows:
-        print("".join(list(map(printValue, row))))
-    pass
-pass
+        if isinstance(value, SearchNode): return value.state
+    for row in rows: print("".join(list(map(printValue, row))))
+    print("")
 
 printRows()
+
+SearchNode('+', 500 - normalization[0], 0 - normalization[1], rows).spread()
