@@ -37,8 +37,8 @@ class SearchNode:
     def spread(self):
         if not self.spreadDown():
             s = self.spreadLeft() + self.spreadRight() == 0
-            self.state = '~' if not s else self.state
-            return s
+            self.state = '~' if s else self.state
+            return not s
         pass
         return True
     pass
