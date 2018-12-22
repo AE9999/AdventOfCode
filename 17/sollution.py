@@ -1,4 +1,5 @@
 import sys, re
+sys.setrecursionlimit(15000)
 
 class Clay:
     def __init__(self, line):
@@ -31,7 +32,7 @@ class SearchNode:
         self.y = y
         self.rows = rows
         self.rows[self.y][self.x] = self
-        printRows()
+        #printRows()
     pass
 
     def spread(self):
@@ -49,19 +50,25 @@ class SearchNode:
                and SearchNode('|', self.x, self.y + 1, self.rows).spread()
 
     def spreadLeft(self):
-        left, surface = self.rows[self.y][self.x -1], self.rows[self.y +1][self.x]
+        left = self.rows[self.y][self.x -1]
+        surface = self.rows[self.y +1][self.x]
         return left == '.' \
                    and (isinstance(surface, Clay) or (isinstance(surface, SearchNode) and surface.state == '~')) \
                    and SearchNode('|', self.x - 1, self.y, self.rows).spread()
 
     def spreadRight(self):
-        right, surface = self.rows[self.y][self.x+ 1], self.rows[self.y +1][self.x]
+        #print ("x,y:(%d,%d) vs maxX:%d,maxY:%d" % (self.x+ 1, self.y, len(self.rows[self.y]), len(self.rows)))
+        if (self.x+ 1 >= len(self.rows[self.y])): printRows()
+        right = self.rows[self.y][self.x+ 1]
+        surface = self.rows[self.y +1][self.x]
         return right == '.' \
                    and (isinstance(surface, Clay) or (isinstance(surface, SearchNode) and surface.state == '~')) \
                    and SearchNode('|', self.x + 1, self.y, self.rows).spread()
 pass
 
-myInput = open('input-test.dat')
+#myInput = open('input.dat')
+#yInput = open('input-test.dat')
+myInput = sys.stdin
 
 clays = list(map(Clay, myInput.readlines()))
 minX = sorted(list(map(lambda x: x.minX(), clays)))[0]
@@ -72,7 +79,7 @@ maxY = sorted(list(map(lambda x: x.maxY(), clays)), reverse=True)[0]
 normalization = [(minX -1), 0]
 
 rows = []
-for y in range(maxY + 1): rows.append(["."] * ((maxX + 1) - normalization[0]))
+for y in range(maxY + 1): rows.append(["."] * ((maxX + 4) - normalization[0]))
 
 for square in [square for clay in clays for square in clay.squares()]:
     rows[square[1] - normalization[1]][square[0] - normalization[0]] = square[2]
@@ -87,9 +94,11 @@ def printRows():
     for row in rows: print("".join(list(map(printValue, row))))
     print("")
 
-printRows()
+#printRows()
 
 SearchNode('+', 500 - normalization[0], 0 - normalization[1], rows).spread()
-
+#
 print("Water reached %d tiles .." % (len(list(filter(lambda x: isinstance(x, SearchNode),
                                                      [square for row in rows for square in row]))) - 1))
+#
+# printRows()
