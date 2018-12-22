@@ -58,15 +58,15 @@ def cost(source, destination):
     pass
     baseCost = costTable[source[1]][source[0]]
     dSource = erosionLevel(destination[0], destination[1])
-    if dSource == 0:
+    if dSource == 0: # Rocky
         neitherCost = baseCost[0] + 8
         climbingCost = baseCost[1] + 1
         torchCost = baseCost[2] + 1
-    elif dSource == 1:
+    elif dSource == 1: # Wet
         neitherCost = baseCost[0] + 1
         climbingCost = baseCost[1] + 1
         torchCost = baseCost[2] + 8
-    elif dSource == 2:
+    elif dSource == 2: # Narrow
         neitherCost = baseCost[0] + 1
         climbingCost = baseCost[1] + 1
         torchCost = baseCost[2] + 8
@@ -79,7 +79,7 @@ def cost(source, destination):
 pass
 
 def sol2():
-    global costTable
+    global costTable, globalMin
     deltas = [(0, -1), (-1, 0), (1, 0), (0, 1)]
     costTable[target[1]][target[0]] = (0, 0, 0)
     queue = deque()
@@ -88,8 +88,8 @@ def sol2():
         x1, y1 = queue.pop()
         print("Analyzing %d,%d .." % (x1, y1))
         for delta in deltas:
-            x2, y2 =  x1 + delta[0], y1 + delta[1]
-            currentCosts = costTable[y2][y2]
+            x2, y2 = x1 + delta[0], y1 + delta[1]
+            currentCosts = costTable[y2][x2]
             potentialCosts = cost((x1,y1), (x2, y2))
             newCosts = (min(currentCosts[0], potentialCosts[0]),
                         min(currentCosts[1], potentialCosts[1]),
@@ -100,8 +100,12 @@ def sol2():
                                                                                              str(currentCosts),
                                                                                              str(potentialCosts),
                                                                                              str(newCosts)))
-            if x1 + delta[0] == 0 and y1 + delta[1] == 0: continue  # Beginning
-            if newCosts[0] < currentCosts[0] or newCosts[1] < currentCosts[1] or newCosts[2] < currentCosts[2]:
+            if x2 == 0 and y2 == 0: # Beginning
+                globalMin = min(globalMin, min(newCosts))
+                print("Current global Min: %d .." % globalMin)
+            if (newCosts[0] < currentCosts[0] or newCosts[1] < currentCosts[1] or newCosts[2] < currentCosts[2]) \
+                and (x2 != 0 or y2 != 0) \
+                and min(newCosts) <= globalMin:
                 print("\t\tAppending %d,%d .." % (x2,y2))
                 queue.appendleft((x2, y2))
         pass
