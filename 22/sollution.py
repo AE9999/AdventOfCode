@@ -68,8 +68,8 @@ def cost(source, destination):
         torchCost = baseCost[2] + 8
     elif dSource == 2: # Narrow
         neitherCost = baseCost[0] + 1
-        climbingCost = baseCost[1] + 1
-        torchCost = baseCost[2] + 8
+        climbingCost = baseCost[1] + 8
+        torchCost = baseCost[2] + 1
     if destination[0] == target[0] and destination[1] == target[1]:
         climbingCost += 7
     # Neither, Torch, Climbing Gear
