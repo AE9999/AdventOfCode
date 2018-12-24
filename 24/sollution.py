@@ -1,5 +1,4 @@
 import sys, re
-#from collections import deque
 
 class Group:
     def __init__(self, id, line, side):
@@ -14,9 +13,9 @@ class Group:
             specials = specials[0].split(';')
             for special in specials:
                 if 'weak to' in special:
-                    self.weaknesses = special.replace('weak to ', '').replace(',', '').split(' ')
+                    self.weaknesses = special.lstrip().replace('weak to ', '').replace(',', '').split(' ')
                 if 'immune to' in special:
-                    self.immunities = special.replace('immune to ', '').replace(',', '').split(' ')
+                    self.immunities = special.lstrip().replace('immune to ', '').replace(',', '').split(' ')
         pass
         self.damage = re.findall(r"with an attack that does (\d+) (.+) damage", line)[0]  # damage,  type
         self.initative = int(re.findall(r"at initiative (\d+)", line)[0])
@@ -50,7 +49,7 @@ class Group:
 pass
 
 units, isID, ifId, readingImmune = [], 0, 0, True
-for line in open('input-test.dat').readlines():
+for line in open('input.dat').readlines():
     if line.rstrip() == 'Immune System:': continue
     if line.rstrip() == 'Infection:':
         readingImmune = False
@@ -87,7 +86,7 @@ while len(set(map(lambda x: x.side,
     for unit in sorted(list(filter(lambda x: not x.death(), units)),
                        key=lambda x: (x.power(), x.initative),
                        reverse=True):
-        targets = sorted(list(filter(lambda x: x.side != unit.side and x not in currentTargets,
+        targets = sorted(list(filter(lambda x: x.side != unit.side and not x.death() and x not in currentTargets,
                                      units)),
                          key=lambda x: (unit.potentialDammage(x), x.power(), x.initative),
                          reverse=True)
@@ -111,3 +110,8 @@ while len(set(map(lambda x: x.side,
     pass
     print("")
 pass
+
+#
+print("The winning army ends up with %d units .."
+      % sum(map(lambda x: x.units,
+                list(filter(lambda x: not x.death(), units))))) # Too high => 24320
