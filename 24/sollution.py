@@ -1,11 +1,12 @@
 import sys, re
 
 class Unit:
-    def __init__(self, line):
+    def __init__(self, line, side):
         self.units = int(re.findall(r"(\d+) units", line)[0])
         self.hp = int(re.findall(r"(\d+) hit points", line)[0])
         self.weaknesses = []
         self.immunities = []
+        self.side = side
         specials = re.findall(r"\((.*)\)", line)
         if len(specials) > 0:
             specials = specials[0].split(';')
@@ -24,9 +25,12 @@ class Unit:
                % (self.units, self.hp, str(self.weaknesses), str(self.immunities), self.damage[0], self.damage[1],
                   self.initative)
     pass
+
+    def power(self):
+        return self.units * self.damage
 pass
 
-immuneSystem, infection, readingImmune = [], [], True
+units = [], True
 
 for line in open('input-test.dat').readlines():
     if line.rstrip() == 'Immune System:': continue
@@ -34,8 +38,10 @@ for line in open('input-test.dat').readlines():
         readingImmune = False
         continue
     if line.rstrip() == '': continue
-    (immuneSystem if readingImmune else infection).append(Unit(line))
+    units.append(Unit(line, 'IS' if readingImmune else 'IF'))
 pass
+
+
 
 
 
