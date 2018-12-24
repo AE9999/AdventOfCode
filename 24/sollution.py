@@ -1,7 +1,7 @@
 import sys, re
 #from collections import deque
 
-class Unit:
+class Group:
     def __init__(self, id, line, side):
         self.id = id
         self.units = int(re.findall(r"(\d+) units", line)[0])
@@ -18,23 +18,23 @@ class Unit:
                 if 'immune to' in special:
                     self.immunities = list(re.findall(r"immune to (\w+)(, \w+)*", special)[0])
         pass
-        self.damage = re.findall(r"with an attack that does (\d+) (.+) damage", line)[0]
+        self.damage = re.findall(r"with an attack that does (\d+) (.+) damage", line)[0]  # damage,  type
         self.initative = int(re.findall(r"at initiative (\d+)", line)[0])
     pass
 
     def __str__(self):
-        return "Units: %d, Hp: %d, weaknesses:%s, immunities:%s, damage:(%d,%s), initative:%d" \
+        return "Units: %d, Hp: %d, weaknesses:%s, immunities:%s, damage:(%s,%s), initative:%d" \
                % (self.units, self.hp, str(self.weaknesses), str(self.immunities), self.damage[0], self.damage[1],
                   self.initative)
     pass
 
-    def power(self): return self.units * self.damage
+    def power(self): return self.units * int(self.damage[0])
 
     def death(self): return self.units == 0
 
     def attack(self, other):
         o = other.units
-        other.units -= self.potentialDammage(other) / other.hitpoints
+        other.units -= self.potentialDammage(other) / other.hp
         if other.units < 0: other.units = 0
         return o - other.units
     pass
@@ -43,13 +43,12 @@ class Unit:
         if self.damage[1] in other.immunities: return 0
         return (2 if self.damage[1] in other.weaknesses else 1) * self.power()
 
-    def __eq__(self, other): return self.id == other.id
+    def __eq__(self, other): return self.id == other.id and self.side == other.side
+
+    def __hash__(self): return hash("%s-%d" % (self.side, self.id))
 pass
 
-units = [], True
-
-isID = 0
-ifId = 0
+units, isID, ifId, readingImmune = [], 0, 0, True
 for line in open('input-test.dat').readlines():
     if line.rstrip() == 'Immune System:': continue
     if line.rstrip() == 'Infection:':
@@ -58,10 +57,10 @@ for line in open('input-test.dat').readlines():
     if line.rstrip() == '': continue
     if readingImmune:
         isID += 1
-        units.append(Unit(isID, line, 'Immune System'))
+        units.append(Group(isID, line, 'Immune System'))
     else:
         ifId += 1
-        units.append(Unit(isID, line, 'Infection'))
+        units.append(Group(isID, line, 'Infection'))
     pass
 pass
 
@@ -76,10 +75,12 @@ def printState():
                        sorted(units, key=lambda x: x.id)):
         print("Group %d contains %d units" % (unit.id, unit.units))
     pass
+    print("")
 pass
 
 while len(set(map(lambda x: x.side,
                   filter(lambda x: not x.death(), units)))) > 1:
+    printState()
     units2targets = []
     currentTargets = set()
     for unit in sorted(list(filter(lambda x: not x.death(), units)),
@@ -100,4 +101,5 @@ while len(set(map(lambda x: x.side,
         print("%s %d attacks defending group %d, killing %d units" %
               (unit.side, unit.id, target.id, deaths))
     pass
+    print("")
 pass
