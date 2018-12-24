@@ -14,9 +14,9 @@ class Group:
             specials = specials[0].split(';')
             for special in specials:
                 if 'weak to' in special:
-                    self.weaknesses = list(re.findall(r"weak to (\w+)(, \w+)*", special)[0])
+                    self.weaknesses = special.replace('weak to ', '').replace(',', '').split(' ')
                 if 'immune to' in special:
-                    self.immunities = list(re.findall(r"immune to (\w+)(, \w+)*", special)[0])
+                    self.immunities = special.replace('immune to ', '').replace(',', '').split(' ')
         pass
         self.damage = re.findall(r"with an attack that does (\d+) (.+) damage", line)[0]  # damage,  type
         self.initative = int(re.findall(r"at initiative (\d+)", line)[0])
@@ -60,7 +60,7 @@ for line in open('input-test.dat').readlines():
         units.append(Group(isID, line, 'Immune System'))
     else:
         ifId += 1
-        units.append(Group(isID, line, 'Infection'))
+        units.append(Group(ifId, line, 'Infection'))
     pass
 pass
 
@@ -90,12 +90,16 @@ while len(set(map(lambda x: x.side,
                                      units)),
                          key=lambda x: (unit.potentialDammage(x), x.power(), x.initative),
                          reverse=True)
+        for target in targets:
+            print("%s %d would deal defending group %d %s damage" %
+                  (unit.side, unit.id, target.id, unit.potentialDammage(target)))
+        pass
         if len(targets) > 0:
             units2targets.append((unit, targets[0]))
             currentTargets.add(targets[0])
         pass
     pass
-
+    print("")
     for unit, target in units2targets:
         deaths = unit.attack(target)
         print("%s %d attacks defending group %d, killing %d units" %
