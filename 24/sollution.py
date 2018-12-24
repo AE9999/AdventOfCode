@@ -1,4 +1,4 @@
-import sys, re
+import re
 
 class Group:
     def __init__(self, id, line, side):
