@@ -116,17 +116,18 @@ def simulateBattle(offset):
         pass
         if deaths == 0:
             print("Tie!, count as loss")
-            return False
+            return False, 0
 
     pass
     winner = list(set(map(lambda x: x.side, filter(lambda x: not x.death(), units))))[0]
     print("With offset:%d the winner is %s .." % (offset, winner))
-    return winner == 'Immune System'
+    return winner == 'Immune System', sum(map(lambda x: x.units,
+                                              list(filter(lambda x: not x.death(), units))))
 pass
 
 upperbound = 10
 lowerbound = 1
-while not simulateBattle(upperbound):
+while not simulateBattle(upperbound)[0]:
     lowerbound = upperbound
     upperbound *= 100
 pass
@@ -136,15 +137,17 @@ def binary_search(lo, hi):
     while lo < hi:
         mid = lo + (hi - lo) / 2
         print("Testing for bound %d .."  % mid)
-        if simulateBattle(mid): hi = mid
-        else: lo = mid + 1
+        if simulateBattle(mid)[0]:
+            hi = mid
+        else:
+            lo = mid + 1
     pass
     return lo
 pass
 
 result = binary_search(lowerbound, upperbound)
 
-print("Lower bound is %d ..", result)
+print("Lower bound is %d, %d .." % (result, simulateBattle(result)[1]))
 
 
 
