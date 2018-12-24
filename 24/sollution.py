@@ -23,9 +23,10 @@ class Group:
     pass
 
     def __str__(self):
-        return "Units: %d, Hp: %d, weaknesses:%s, immunities:%s, damage:(%s,%s), initative:%d" \
-               % (self.units, self.hp, str(self.weaknesses), str(self.immunities), self.damage[0], self.damage[1],
-                  self.initative)
+        return "%s group %d => Power: %d, Units: %d, Hp: %d, weaknesses:%s, immunities:%s, damage:(%s,%s), initative:%d" \
+               % (self.side, self.id, self.power(),
+                  self.units, self.hp, str(self.weaknesses), str(self.immunities),
+                  self.damage[0], self.damage[1], self.initative)
     pass
 
     def power(self): return self.units * int(self.damage[0])
@@ -34,7 +35,7 @@ class Group:
 
     def attack(self, other):
         o = other.units
-        other.units -= self.potentialDammage(other) / other.hp
+        other.units = other.units - int(self.potentialDammage(other) / other.hp)  # Fuck Python
         if other.units < 0: other.units = 0
         return o - other.units
     pass
@@ -100,7 +101,10 @@ while len(set(map(lambda x: x.side,
         pass
     pass
     print("")
-    for unit, target in units2targets:
+    for unit, target in sorted(units2targets,
+                               key=lambda x: x[0].initative,
+                               reverse=True):
+        if unit.death(): continue
         deaths = unit.attack(target)
         print("%s %d attacks defending group %d, killing %d units" %
               (unit.side, unit.id, target.id, deaths))
