@@ -1,7 +1,9 @@
 import sys, re
+#from collections import deque
 
 class Unit:
-    def __init__(self, line, side):
+    def __init__(self, id, line, side):
+        self.id = id
         self.units = int(re.findall(r"(\d+) units", line)[0])
         self.hp = int(re.findall(r"(\d+) hit points", line)[0])
         self.weaknesses = []
@@ -26,22 +28,76 @@ class Unit:
                   self.initative)
     pass
 
-    def power(self):
-        return self.units * self.damage
+    def power(self): return self.units * self.damage
+
+    def death(self): return self.units == 0
+
+    def attack(self, other):
+        o = other.units
+        other.units -= self.potentialDammage(other) / other.hitpoints
+        if other.units < 0: other.units = 0
+        return o - other.units
+    pass
+
+    def potentialDammage(self, other):
+        if self.damage[1] in other.immunities: return 0
+        return (2 if self.damage[1] in other.weaknesses else 1) * self.power()
+
+    def __eq__(self, other): return self.id == other.id
 pass
 
 units = [], True
 
+isID = 0
+ifId = 0
 for line in open('input-test.dat').readlines():
     if line.rstrip() == 'Immune System:': continue
     if line.rstrip() == 'Infection:':
         readingImmune = False
         continue
     if line.rstrip() == '': continue
-    units.append(Unit(line, 'IS' if readingImmune else 'IF'))
+    if readingImmune:
+        isID += 1
+        units.append(Unit(isID, line, 'Immune System'))
+    else:
+        ifId += 1
+        units.append(Unit(isID, line, 'Infection'))
+    pass
 pass
 
+def printState():
+    print("Immune System:")
+    for unit in filter(lambda x: x.side == 'Immune System',
+                       sorted(units, key=lambda x: x.id)):
+        print("Group %d contains %d units" % (unit.id, unit.units))
+    pass
+    print("Infection:")
+    for unit in filter(lambda x: x.side == 'Infection',
+                       sorted(units, key=lambda x: x.id)):
+        print("Group %d contains %d units" % (unit.id, unit.units))
+    pass
+pass
 
+while len(set(map(lambda x: x.side,
+                  filter(lambda x: not x.death(), units)))) > 1:
+    units2targets = []
+    currentTargets = set()
+    for unit in sorted(list(filter(lambda x: not x.death(), units)),
+                       key=lambda x: (x.power(), x.initative),
+                       reverse=True):
+        targets = sorted(list(filter(lambda x: x.side != unit.side and x not in currentTargets,
+                                     units)),
+                         key=lambda x: (unit.potentialDammage(x), x.power(), x.initative),
+                         reverse=True)
+        if len(targets) > 0:
+            units2targets.append((unit, targets[0]))
+            currentTargets.add(targets[0])
+        pass
+    pass
 
-
-
+    for unit, target in units2targets:
+        deaths = unit.attack(target)
+        print("%s %d attacks defending group %d, killing %d units" %
+              (unit.side, unit.id, target.id, deaths))
+    pass
+pass
